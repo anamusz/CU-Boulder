@@ -1,3 +1,4 @@
+//Updated to fix RTC 10/16/2017
 //Updated for SD Card and RTC 01/04/2017
 //Updated for Time and Date stamp 01/24/2017
 
@@ -14,7 +15,7 @@
 
 // Define Clock style and Pin
 #define PRINT_USA_DATE
-#define DS13074_CS_PIN A1 
+#define DS13074_CS_PIN 10 // DeadOn RTC Chip-select pin 
 
 // include SD library
 #include <SD.h>
@@ -54,8 +55,6 @@ void setup(void)
   Serial.begin(9600);
   pinMode(10,OUTPUT);
  
-  //Necissary for SD shield to work
-  //pinMode(10, OUTPUT);
   
   lcd.begin(20, 4);
   
@@ -202,19 +201,22 @@ void setup(void)
   fileType.close();
   //Turn off SPI to SD
   digitalWrite(8,HIGH);
-  //Begin RTC Set-up
+  
+
+/////////////////////////////////////////////////////////////////////////////////////
+//initialize starting time for RTC
   // Call rtc.begin([cs]) to initialize the library
   // The chip-select pin should be sent as the only parameter
   rtc.begin(DS13074_CS_PIN);
+  
   // set the RTC's clock and date to the compiliers 
   // predefined time.
-  rtc.autoTime();
+  //First time configuration of RTC ONLY, for all later uploads, comment out
+  // rtc.autoTime(); 
+  
   // Update time/date values
   rtc.update();
-/////////////////////////////////////////////////////////////////////////////////////
-//initialize starting time for RTC
-  rtc.autoTime();
-  rtc.update();
+  
   int m,mi,h,d,da,y;
   m = rtc.month();
   da = rtc.date();
@@ -324,7 +326,7 @@ void SDSave(String Date, String Time, float timer, float PSI){
 
   
   //Open SPI bus to SD Card
-  digitalWrite(A1,HIGH);
+  digitalWrite(2,HIGH);
   //Close SPI bus to RTC
   digitalWrite(8,LOW);
   //Open File and save data
@@ -354,7 +356,7 @@ void SDSave(String Date, String Time, float timer, float PSI){
   //Close SD file and save
   fileType.close();
   //Close SPI to SD
-  digitalWrite(A1,LOW);
+  digitalWrite(2,LOW);
   //open SPI to RTC
   digitalWrite(8,HIGH);
   
@@ -363,18 +365,12 @@ void SDSave(String Date, String Time, float timer, float PSI){
 void loop(void)
 { 
   //Time set-up
-  digitalWrite(DS13074_CS_PIN,LOW);
+
   static int8_t lastSecond = -1;
   // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),
   // etc. return functions.
   rtc.update();
-//  if (rtc.second() != lastSecond) // If the second has changed
-//  {
-//    printTime(); // Print the new time
-//    
-//    lastSecond = rtc.second(); // Update lastSecond value
-//  }
-//  float timer = (60*rtc.minute())+rtc.second(); //Counts seconds
+
   int s,m,mi,h,d,da,y;
   s = rtc.second();
   mi = rtc.minute();
