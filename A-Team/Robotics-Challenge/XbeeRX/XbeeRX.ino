@@ -31,7 +31,7 @@ int Samples = 110;
 
 
 void setup() {
-  //Initialize serial communications at 9600 bps:
+  //Initialize serial communications at 57600 bps:
   Serial.begin(57600); 
   Serial1.begin(57600);
   xbee.setSerial(Serial1);
